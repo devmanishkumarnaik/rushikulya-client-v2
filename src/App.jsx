@@ -87,6 +87,8 @@ function Home({ loading, items }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [quantity, setQuantity] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -101,12 +103,16 @@ function Home({ loading, items }) {
     e.preventDefault();
     setError("");
     setInfo("");
-    if (!name || !phone || !location) {
+    if (!name || !phone || !location || !pincode) {
       setError("All fields are required");
       return;
     }
     if (!/^\d{10}$/.test(String(phone))) {
       setError("Phone must be 10 digits");
+      return;
+    }
+    if (!/^\d{6}$/.test(String(pincode))) {
+      setError("Pincode must be 6 digits");
       return;
     }
     setSubmitting(true);
@@ -126,6 +132,8 @@ function Home({ loading, items }) {
       `Customer Name: ${name}`,
       `Phone: ${phone}`,
       `Address: ${location}`,
+      `Pincode: ${pincode}`,
+      quantity ? `Quantity: ${quantity}` : "",
       "",
       "Product Details:",
       `- Name: ${ordering?.name || "N/A"}`,
@@ -138,7 +146,7 @@ function Home({ loading, items }) {
       `- Product ID: ${ordering?._id || "N/A"}`,
       "",
       "Please confirm availability and reply to the customer.",
-    ];
+    ].filter(line => line !== "");
     const body = bodyLines.join("\n");
     const mailtoUrl = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
@@ -150,6 +158,8 @@ function Home({ loading, items }) {
     setName("");
     setPhone("");
     setLocation("");
+    setPincode("");
+    setQuantity("");
     setOrdering(null);
   }
 

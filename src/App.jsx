@@ -621,9 +621,27 @@ Sent from Rushikulya Newsletter Subscription
               </div>
               
               <form onSubmit={submitOrder} className="form" style={{ marginTop: 12 }}>
-                <input className="input" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} />
-                <input className="input" placeholder="10 digit phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                <input className="input" placeholder="Give your address with pincode" value={location} onChange={(e) => setLocation(e.target.value)} />
+                <input className="input" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <input className="input" placeholder="10 digit phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                <input className="input" placeholder="Your Address" value={location} onChange={(e) => setLocation(e.target.value)} required />
+                <input 
+                  className="input" 
+                  placeholder="Pincode (6 digits)" 
+                  value={pincode} 
+                  onChange={(e) => setPincode(e.target.value)} 
+                  maxLength={6}
+                  pattern="\d{6}"
+                  required 
+                />
+                <input 
+                  className="input" 
+                  placeholder="Quantity (Optional)" 
+                  value={quantity} 
+                  onChange={(e) => setQuantity(e.target.value)} 
+                  type="number"
+                  min="1"
+                  step="1"
+                />
                 <div className="row">
                   <button className="btn btn-success" type="submit" disabled={submitting}>{submitting ? "Submitting..." : "Place Order"}</button>
                   <button className="btn-outline btn" type="button" onClick={() => setOrdering(null)}>Cancel</button>
@@ -4471,6 +4489,7 @@ function Seller() {
     </div>
   );
 }
+
 
 
 

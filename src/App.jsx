@@ -181,10 +181,8 @@ function Home({ loading, items }) {
           <div className="hero-content">
             {/* <span className="pill pill-glow">✨ Welcome to Rushikulya</span> */}
             <br />
-            <br />
-            <br />
             <div className="hero-title">
-              Goods & Services Multimart
+              Rushikulya® BuySell (Goods & Services)
             </div>
             <div className="hero-subtitle">
               Offers a unified marketplace connecting buyers and sellers with trusted products, reliable services, fast delivery, and seamless community-driven commerce.

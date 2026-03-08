@@ -180,6 +180,9 @@ function Home({ loading, items }) {
         <div className="hero-inner hero-inner-cover">
           <div className="hero-content">
             {/* <span className="pill pill-glow">✨ Welcome to Rushikulya</span> */}
+            <br />
+            <br />
+            <br />
             <div className="hero-title">
               Goods & Services Multimart
             </div>

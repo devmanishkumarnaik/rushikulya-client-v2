@@ -1001,9 +1001,35 @@ Please connect the customer with the service provider.
                         <strong>🏷️ Code:</strong> {product.code}
                       </div>
                     )}
+                    {product.mrp && Number(product.mrp) > 0 && (
+                      <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                        <strong>MRP:</strong> <span>₹{product.mrp}</span>
+                      </div>
+                    )}
                     <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
                       <strong>💰 Price:</strong> ₹{product.price}
                     </div>
+                    {(product.gst !== undefined || product.deliveryCharge !== undefined) && (
+                      <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 6, padding: "8px 12px", marginBottom: 8, fontSize: 13 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span className="muted">GST ({product.gst || 0}%)</span>
+                          <span>₹{(Number(product.price || 0) * Number(product.gst || 0) / 100).toFixed(2)}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span className="muted">Delivery</span>
+                          <span>₹{Number(product.deliveryCharge || 0).toFixed(2)}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, borderTop: "1px solid #bbf7d0", paddingTop: 6, marginTop: 2, color: "#15803d" }}>
+                          <span>Total</span>
+                          <span>₹{(Number(product.price || 0) + Number(product.price || 0) * Number(product.gst || 0) / 100 + Number(product.deliveryCharge || 0)).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+                    {product.expiry && (
+                      <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                        <strong>📅 Expiry:</strong> {product.expiry}
+                      </div>
+                    )}
                     <div className="muted" style={{ marginBottom: 12, fontSize: 13 }}>
                       <strong>👤 Seller:</strong> {product.firstName} {product.lastName}
                     </div>
@@ -1175,13 +1201,13 @@ Please connect the customer with the service provider.
       {/* Preview Card for Shared Links */}
       {previewItem && (
         <div 
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto", zIndex: 2000 }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", overflowY: "auto", zIndex: 2000 }}
           onClick={() => { setPreviewItem(null); setPreviewType(null); }}
         >
-          <div className="card" style={{ maxWidth: 600, width: "100%", margin: "auto" }} onClick={(e) => e.stopPropagation()}>
-            <div className="card-body" style={{ padding: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, gap: 12 }}>
-                <div className="title" style={{ margin: 0, flex: 1, paddingRight: 8 }}>
+          <div className="card" style={{ maxWidth: 480, width: "100%", margin: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div className="card-body" style={{ padding: "14px 16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, gap: 8 }}>
+                <div className="title" style={{ margin: 0, flex: 1, fontSize: 16, lineHeight: 1.3 }}>
                   {previewType === "product" ? previewItem.productName : previewType === "service" ? previewItem.serviceName : previewItem.name}
                 </div>
                 <button 
@@ -1189,7 +1215,7 @@ Please connect the customer with the service provider.
                   type="button" 
                   aria-label="Close" 
                   onClick={() => { setPreviewItem(null); setPreviewType(null); }}
-                  style={{ cursor: "pointer", background: "none", border: "none", fontSize: "28px", lineHeight: 1, padding: 0, color: "var(--muted)", flexShrink: 0 }}
+                  style={{ cursor: "pointer", background: "none", border: "none", fontSize: "22px", lineHeight: 1, padding: 0, color: "var(--muted)", flexShrink: 0 }}
                 >
                   ×
                 </button>
@@ -1202,30 +1228,45 @@ Please connect the customer with the service provider.
                     <img 
                       src={previewItem.imageUrl} 
                       alt={previewItem.productName}
-                      style={{ width: "100%", maxHeight: 300, objectFit: "cover", borderRadius: 8, marginBottom: 16 }}
+                      style={{ width: "100%", maxHeight: 130, objectFit: "cover", borderRadius: 6, marginBottom: 8 }}
                     />
                   )}
-                  <div style={{ marginBottom: 16 }}>
-                    {previewItem.details && (
-                      <div className="muted" style={{ marginBottom: 12, fontSize: 15, lineHeight: 1.6 }}>
-                        {previewItem.details}
-                      </div>
-                    )}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-                      <div style={{ padding: 12, background: "var(--surface)", borderRadius: 8 }}>
-                        <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>Price</div>
-                        <div style={{ fontSize: 20, fontWeight: 600, color: "var(--primary)" }}>₹{previewItem.price}</div>
-                      </div>
-                      <div style={{ padding: 12, background: "var(--surface)", borderRadius: 8 }}>
-                        <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>Code</div>
-                        <div style={{ fontSize: 16, fontWeight: 600 }}>{previewItem.code}</div>
-                      </div>
+                  {previewItem.details && (
+                    <div className="muted" style={{ marginBottom: 6, fontSize: 12, lineHeight: 1.4 }}>{previewItem.details}</div>
+                  )}
+                  {/* MRP + Code on same row */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--surface)", borderRadius: 6, padding: "7px 10px", marginBottom: 6 }}>
+                    <div>
+                      <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 1 }}>MRP</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--primary)" }}>₹{previewItem.mrp || previewItem.price}</div>
                     </div>
-                    <div style={{ padding: 12, background: "var(--surface)", borderRadius: 8, marginBottom: 8 }}>
-                      <div style={{ fontSize: 13 }}>
-                        <strong>👤 Seller:</strong> {previewItem.firstName} {previewItem.lastName}
-                      </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 1 }}>Code</div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{previewItem.code}</div>
                     </div>
+                  </div>
+                  <div style={{ padding: "8px 10px", background: "var(--surface)", borderRadius: 6, marginBottom: 6 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12 }}>
+                      <span>Price:</span><span style={{ fontWeight: 600 }}>₹{previewItem.price}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12 }}>
+                      <span>GST ({Number(previewItem.gst || 0).toFixed(2)}%):</span><span style={{ fontWeight: 600 }}>₹{(Number(previewItem.price || 0) * Number(previewItem.gst || 0) / 100).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, fontSize: 12 }}>
+                      <span>Delivery:</span><span style={{ fontWeight: 600 }}>₹{Number(previewItem.deliveryCharge || 0).toFixed(2)}</span>
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--border)", paddingTop: 5, display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                      <span style={{ fontWeight: 700 }}>Total:</span>
+                      <span style={{ fontWeight: 700, color: "var(--primary)" }}>₹{(Number(previewItem.price || 0) + Number(previewItem.price || 0) * Number(previewItem.gst || 0) / 100 + Number(previewItem.deliveryCharge || 0)).toFixed(2)}</span>
+                    </div>
+                  </div>
+                  {previewItem.expiry && (
+                    <div style={{ padding: "5px 10px", background: "var(--surface)", borderRadius: 6, marginBottom: 5, fontSize: 12 }}>
+                      <strong>📅 Expiry:</strong> {previewItem.expiry}
+                    </div>
+                  )}
+                  <div style={{ padding: "5px 10px", background: "var(--surface)", borderRadius: 6, marginBottom: 4, fontSize: 12 }}>
+                    <strong>👤 Seller:</strong> {previewItem.firstName} {previewItem.lastName}
                   </div>
                 </div>
               )}
@@ -1234,24 +1275,20 @@ Please connect the customer with the service provider.
               {previewType === "service" && (
                 <div>
                   {previewItem.description && (
-                    <div className="muted" style={{ marginBottom: 12, fontSize: 15, lineHeight: 1.6 }}>
-                      {previewItem.description}
-                    </div>
+                    <div className="muted" style={{ marginBottom: 8, fontSize: 12, lineHeight: 1.4 }}>{previewItem.description}</div>
                   )}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-                    <div style={{ padding: 12, background: "var(--surface)", borderRadius: 8 }}>
-                      <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>Price</div>
-                      <div style={{ fontSize: 20, fontWeight: 600, color: "var(--primary)" }}>₹{previewItem.price}</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 6 }}>
+                    <div style={{ padding: "8px 10px", background: "var(--surface)", borderRadius: 6 }}>
+                      <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>Price</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--primary)" }}>₹{previewItem.price}</div>
                     </div>
-                    <div style={{ padding: 12, background: "var(--surface)", borderRadius: 8 }}>
-                      <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>Code</div>
-                      <div style={{ fontSize: 16, fontWeight: 600 }}>{previewItem.code}</div>
+                    <div style={{ padding: "8px 10px", background: "var(--surface)", borderRadius: 6 }}>
+                      <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>Code</div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{previewItem.code}</div>
                     </div>
                   </div>
-                  <div style={{ padding: 12, background: "var(--surface)", borderRadius: 8, marginBottom: 8 }}>
-                    <div style={{ fontSize: 13 }}>
-                      <strong>👤 Provider:</strong> {previewItem.firstName} {previewItem.lastName}
-                    </div>
+                  <div style={{ padding: "6px 10px", background: "var(--surface)", borderRadius: 6, marginBottom: 4, fontSize: 12 }}>
+                    <strong>👤 Provider:</strong> {previewItem.firstName} {previewItem.lastName}
                   </div>
                 </div>
               )}
@@ -1263,61 +1300,44 @@ Please connect the customer with the service provider.
                     <img 
                       src={previewItem.imageUrl} 
                       alt={previewItem.name}
-                      style={{ width: "100%", maxHeight: 300, objectFit: "cover", borderRadius: 8, marginBottom: 16 }}
+                      style={{ width: "100%", maxHeight: 180, objectFit: "cover", borderRadius: 6, marginBottom: 10 }}
                     />
                   )}
-                  
-                  {/* Description and Expiry Row */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
-                    {previewItem.benefits && (
-                      <div className="muted" style={{ flex: 1, fontSize: 15, lineHeight: 1.6 }}>
-                        {previewItem.benefits}
-                      </div>
-                    )}
-                    {previewItem.expiry && (
-                      <div style={{ flexShrink: 0, padding: 8, background: "var(--surface)", borderRadius: 8, whiteSpace: "nowrap" }}>
-                        <div style={{ fontSize: 13 }}>
-                          <strong>📅 Expiry:</strong> {previewItem.expiry}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Pricing Breakdown */}
-                  <div style={{ padding: 16, background: "var(--surface)", borderRadius: 8, marginBottom: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 14 }}>
-                      <span>MRP:</span>
-                      <span style={{ fontWeight: 600 }}>₹{(previewItem.mrp || previewItem.price)}</span>
+                  {previewItem.benefits && (
+                    <div className="muted" style={{ marginBottom: 8, fontSize: 12, lineHeight: 1.4 }}>{previewItem.benefits}</div>
+                  )}
+                  <div style={{ padding: "10px 12px", background: "var(--surface)", borderRadius: 6, marginBottom: 6 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12 }}>
+                      <span>MRP:</span><span style={{ fontWeight: 600 }}>₹{previewItem.mrp || previewItem.price}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 14 }}>
-                      <span>Price:</span>
-                      <span style={{ fontWeight: 600 }}>₹{previewItem.price}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12 }}>
+                      <span>Price:</span><span style={{ fontWeight: 600 }}>₹{previewItem.price}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 14 }}>
-                      <span>GST ({Number(previewItem.gst || 0).toFixed(2)}%):</span>
-                      <span style={{ fontWeight: 600 }}>₹{((previewItem.price * Number(previewItem.gst || 0)) / 100).toFixed(2)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12 }}>
+                      <span>GST ({Number(previewItem.gst || 0).toFixed(2)}%):</span><span style={{ fontWeight: 600 }}>₹{(Number(previewItem.price) * Number(previewItem.gst || 0) / 100).toFixed(2)}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 14 }}>
-                      <span>Delivery:</span>
-                      <span style={{ fontWeight: 600 }}>₹{Number(previewItem.deliveryCharge || 0).toFixed(2)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 12 }}>
+                      <span>Delivery:</span><span style={{ fontWeight: 600 }}>₹{Number(previewItem.deliveryCharge || 0).toFixed(2)}</span>
                     </div>
-                    <div style={{ borderTop: "2px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "space-between", fontSize: 16 }}>
+                    <div style={{ borderTop: "1px solid var(--border)", paddingTop: 6, display: "flex", justifyContent: "space-between", fontSize: 13 }}>
                       <span style={{ fontWeight: 700 }}>Total:</span>
-                      <span style={{ fontWeight: 700, color: "var(--primary)", fontSize: 18 }}>₹{(Number(previewItem.price) + ((previewItem.price * Number(previewItem.gst || 0)) / 100) + Number(previewItem.deliveryCharge || 0)).toFixed(2)}</span>
+                      <span style={{ fontWeight: 700, color: "var(--primary)" }}>₹{(Number(previewItem.price) + Number(previewItem.price) * Number(previewItem.gst || 0) / 100 + Number(previewItem.deliveryCharge || 0)).toFixed(2)}</span>
                     </div>
                   </div>
-
+                  {previewItem.expiry && (
+                    <div style={{ padding: "6px 10px", background: "var(--surface)", borderRadius: 6, marginBottom: 6, fontSize: 12 }}>
+                      <strong>📅 Expiry:</strong> {previewItem.expiry}
+                    </div>
+                  )}
                   {previewItem.company && (
-                    <div style={{ padding: 12, background: "var(--surface)", borderRadius: 8, marginBottom: 8 }}>
-                      <div style={{ fontSize: 13 }}>
-                        <strong>🏢 Company:</strong> {previewItem.company}
-                      </div>
+                    <div style={{ padding: "6px 10px", background: "var(--surface)", borderRadius: 6, marginBottom: 4, fontSize: 12 }}>
+                      <strong>🏢 Company:</strong> {previewItem.company}
                     </div>
                   )}
                 </div>
               )}
 
-              <div className="row" style={{ marginTop: 20, gap: 8 }}>
+              <div className="row" style={{ marginTop: 12, gap: 6 }}>
                 <button 
                   className="btn btn-success" 
                   onClick={() => {
@@ -1325,14 +1345,14 @@ Please connect the customer with the service provider.
                     setPreviewItem(null);
                     setPreviewType(null);
                   }}
-                  style={{ flex: 1, fontSize: 16, padding: "12px" }}
+                  style={{ flex: 1, fontSize: 14, padding: "10px" }}
                 >
                   {previewType === "medicine" ? "📦 Order Now" : "📞 Contact " + (previewType === "product" ? "Seller" : "Provider")}
                 </button>
                 <button 
                   className="btn-outline btn" 
                   onClick={() => { setPreviewItem(null); setPreviewType(null); }}
-                  style={{ padding: "12px 20px" }}
+                  style={{ padding: "10px 16px", fontSize: 14 }}
                 >
                   Close
                 </button>
@@ -1590,6 +1610,10 @@ function Admin({ onCreated, loading, items }) {
     const productData = {
       productName: formData.get("productName"),
       price: Number(formData.get("price")),
+      mrp: Number(formData.get("mrp")),
+      gst: Number(formData.get("gst")),
+      deliveryCharge: Number(formData.get("deliveryCharge")),
+      expiry: formData.get("expiry")?.trim().toUpperCase() === "NA" ? "NA" : formData.get("expiry")?.trim(),
       location: formData.get("location"),
       pincode: formData.get("pincode"),
       imageUrl: editingProduct.imageUrl
@@ -1599,7 +1623,8 @@ function Admin({ onCreated, loading, items }) {
       const response = await updateProduct(editingProduct._id, productData);
       setEditingProduct(null);
       loadSellerItems();
-      setPopup({ type: "success", message: `Product ${response.product.productName} updated successfully.` });
+      setPopup({ type: "success", message: `✓ Product "${response.product.productName}" updated successfully.` });
+      setTimeout(() => setPopup(null), 3000);
     } catch (err) {
       console.error("Error updating product:", err);
       setPopup({ type: "error", message: err.message || "Failed to update product. Please try again." });
@@ -2129,12 +2154,20 @@ function Admin({ onCreated, loading, items }) {
                           <th style={{ textAlign: "left", padding: "12px", borderBottom: "2px solid var(--border)" }}>Pincode</th>
                           <th style={{ padding: "12px", borderBottom: "2px solid var(--border)", textAlign: "left", fontWeight: 600 }}>Initial Price</th>
                           <th style={{ padding: "12px", borderBottom: "2px solid var(--border)", textAlign: "left", fontWeight: 600 }}>Updated Price</th>
+                          <th style={{ padding: "12px", borderBottom: "2px solid var(--border)", textAlign: "left", fontWeight: 600 }}>MRP</th>
+                          <th style={{ padding: "12px", borderBottom: "2px solid var(--border)", textAlign: "left", fontWeight: 600 }}>GST%</th>
+                          <th style={{ padding: "12px", borderBottom: "2px solid var(--border)", textAlign: "left", fontWeight: 600 }}>Delivery</th>
+                          <th style={{ padding: "12px", borderBottom: "2px solid var(--border)", textAlign: "left", fontWeight: 600 }}>Expiry</th>
+                          <th style={{ padding: "12px", borderBottom: "2px solid var(--border)", textAlign: "left", fontWeight: 600, color: "#15803d" }}>Total</th>
                           <th style={{ textAlign: "left", padding: "12px", borderBottom: "2px solid var(--border)" }}>Status</th>
                           <th style={{ textAlign: "left", padding: "12px", borderBottom: "2px solid var(--border)" }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {paginatedSellerProducts.map((product, index) => (
+                        {paginatedSellerProducts.map((product, index) => {
+                          const gstAmount = Number(product.price || 0) * Number(product.gst || 0) / 100;
+                          const total = Number(product.price || 0) + gstAmount + Number(product.deliveryCharge || 0);
+                          return (
                           <tr key={product._id} style={{ backgroundColor: index % 2 === 0 ? "var(--background)" : "transparent" }}>
                             <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>{product.productName}</td>
                             <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>
@@ -2152,6 +2185,11 @@ function Admin({ onCreated, loading, items }) {
                             <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>{product.pincode || "N/A"}</td>
                             <td style={{ padding: "12px", borderBottom: "1px solid var(--border)", color: "#6b7280" }}>₹{product.initialPrice || product.price}</td>
                             <td style={{ padding: "12px", borderBottom: "1px solid var(--border)", fontWeight: 600 }}>₹{product.price}</td>
+                            <td style={{ padding: "12px", borderBottom: "1px solid var(--border)", color: "#6b7280" }}>{product.mrp ? `₹${product.mrp}` : "—"}</td>
+                            <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>{product.gst !== undefined ? `${product.gst}%` : "—"}</td>
+                            <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>{product.deliveryCharge !== undefined ? `₹${product.deliveryCharge}` : "—"}</td>
+                            <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>{product.expiry || "NA"}</td>
+                            <td style={{ padding: "12px", borderBottom: "1px solid var(--border)", fontWeight: 700, color: "#15803d" }}>₹{total.toFixed(2)}</td>
                             <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>
                               <span className={product.available !== false ? "pill pill-success" : "pill pill-danger"}>
                                 {product.available !== false ? "Available" : "Not Available"}
@@ -2190,7 +2228,7 @@ function Admin({ onCreated, loading, items }) {
                               </div>
                             </td>
                           </tr>
-                        ))}
+                        );})}
                       </tbody>
                     </table>
                   </div>
@@ -2342,8 +2380,64 @@ function Admin({ onCreated, loading, items }) {
                         type="number"
                         name="price"
                         defaultValue={editingProduct.price}
+                        min="0.01"
+                        step="0.01"
                         required
                       />
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div className="form-group">
+                        <label className="form-label">MRP (₹)</label>
+                        <input
+                          className="input form-input"
+                          type="number"
+                          name="mrp"
+                          defaultValue={editingProduct.mrp}
+                          min="0.01"
+                          step="0.01"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">GST (%)</label>
+                        <input
+                          className="input form-input"
+                          type="number"
+                          name="gst"
+                          defaultValue={editingProduct.gst}
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div className="form-group">
+                        <label className="form-label">Delivery Charge (₹)</label>
+                        <input
+                          className="input form-input"
+                          type="number"
+                          name="deliveryCharge"
+                          defaultValue={editingProduct.deliveryCharge}
+                          min="0"
+                          step="0.01"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Expiry</label>
+                        <input
+                          className="input form-input"
+                          type="text"
+                          name="expiry"
+                          defaultValue={editingProduct.expiry || "NA"}
+                          placeholder="DD-MM-YYYY or NA"
+                          required
+                        />
+                      </div>
                     </div>
                     
                     <div className="form-group">
@@ -2496,6 +2590,16 @@ function Admin({ onCreated, loading, items }) {
           </div>
         </div>
       ) : null}
+
+      {/* Toast notification */}
+      {popup && (
+        <div className={`popup ${popup.type}`}>
+          <div className="popup-content">
+            <div className="popup-message">{popup.message}</div>
+            <button className="popup-close" onClick={() => setPopup(null)}>×</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2701,7 +2805,10 @@ function AdminApprovals() {
         <div>
           {activeTab === "pending" && (
             <div className="grid-3" style={{ marginTop: 24 }}>
-              {pendingProducts.map((product) => (
+              {pendingProducts.map((product) => {
+                const gstAmt = Number(product.price || 0) * Number(product.gst || 0) / 100;
+                const total = Number(product.price || 0) + gstAmt + Number(product.deliveryCharge || 0);
+                return (
                 <div key={product._id} className="card card-elevated" style={{ padding: 0, overflow: "hidden" }}>
                   {product.imageUrl && product.imageUrl.trim() !== "" ? (
                     <img 
@@ -2735,9 +2842,33 @@ function AdminApprovals() {
                         <strong>🏷️ Code:</strong> {product.code}
                       </div>
                     )}
+                    {product.mrp && Number(product.mrp) > 0 && (
+                      <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                        <strong>MRP:</strong> <span>₹{product.mrp}</span>
+                      </div>
+                    )}
                     <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
                       <strong>💰 Price:</strong> ₹{product.price}
                     </div>
+                    <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 6, padding: "8px 12px", marginBottom: 8, fontSize: 13 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span className="muted">GST ({product.gst || 0}%)</span>
+                        <span>₹{gstAmt.toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span className="muted">Delivery</span>
+                        <span>₹{Number(product.deliveryCharge || 0).toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, borderTop: "1px solid #bbf7d0", paddingTop: 6, marginTop: 2, color: "#15803d" }}>
+                        <span>Total</span>
+                        <span>₹{total.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    {product.expiry && (
+                      <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                        <strong>📅 Expiry:</strong> {product.expiry}
+                      </div>
+                    )}
                     <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
                       <strong>👤 Seller:</strong> {product.firstName} {product.lastName}
                     </div>
@@ -2770,7 +2901,8 @@ function AdminApprovals() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               {pendingServices.map((service) => (
                 <div key={service._id} className="card card-elevated" style={{ padding: 0, overflow: "hidden" }}>
                   <div className="card-body" style={{ padding: 20 }}>
@@ -2831,7 +2963,10 @@ function AdminApprovals() {
 
           {activeTab === "approved" && (
             <div className="grid-3" style={{ marginTop: 24 }}>
-              {approvedProducts.map((product) => (
+              {approvedProducts.map((product) => {
+                const gstAmt = Number(product.price || 0) * Number(product.gst || 0) / 100;
+                const total = Number(product.price || 0) + gstAmt + Number(product.deliveryCharge || 0);
+                return (
                 <div key={product._id} className="card card-elevated" style={{ padding: 0, overflow: "hidden" }}>
                   {product.imageUrl && product.imageUrl.trim() !== "" ? (
                     <img 
@@ -2865,17 +3000,35 @@ function AdminApprovals() {
                         <strong>🏷️ Code:</strong> {product.code}
                       </div>
                     )}
+                    {product.mrp && Number(product.mrp) > 0 && (
+                      <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                        <strong>MRP:</strong> <span>₹{product.mrp}</span>
+                      </div>
+                    )}
                     <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
                       <strong>💰 Price:</strong> ₹{product.price}
                     </div>
-                    <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
-                      <strong>👤 Seller:</strong> {product.firstName} {product.lastName}
+                    <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 6, padding: "8px 12px", marginBottom: 8, fontSize: 13 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span className="muted">GST ({product.gst || 0}%)</span>
+                        <span>₹{gstAmt.toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span className="muted">Delivery</span>
+                        <span>₹{Number(product.deliveryCharge || 0).toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, borderTop: "1px solid #bbf7d0", paddingTop: 6, marginTop: 2, color: "#15803d" }}>
+                        <span>Total</span>
+                        <span>₹{total.toFixed(2)}</span>
+                      </div>
                     </div>
-                    <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
-                      <strong>📍 Address:</strong> {product.location}
-                    </div>
+                    {product.expiry && (
+                      <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                        <strong>📅 Expiry:</strong> {product.expiry}
+                      </div>
+                    )}
                     <div className="muted" style={{ marginBottom: 12, fontSize: 13 }}>
-                      <strong>📮 Pincode:</strong> {product.pincode || "N/A"}
+                      <strong>👤 Seller:</strong> {product.firstName} {product.lastName}
                     </div>
                     <button 
                       className="btn-outline btn" 
@@ -2886,7 +3039,8 @@ function AdminApprovals() {
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               {approvedServices.map((service) => (
                 <div key={service._id} className="card card-elevated" style={{ padding: 0, overflow: "hidden" }}>
                   <div className="card-body" style={{ padding: 20 }}>
@@ -3093,7 +3247,11 @@ function Seller() {
   // Product form
   const [productName, setProductName] = useState("");
   const [productDetails, setProductDetails] = useState("");
+  const [productMrp, setProductMrp] = useState("");
   const [productPrice, setProductPrice] = useState("");
+  const [productGst, setProductGst] = useState("");
+  const [productDeliveryCharge, setProductDeliveryCharge] = useState("");
+  const [productExpiry, setProductExpiry] = useState("NA");
   const [productImage, setProductImage] = useState(null);
   const [productImagePreview, setProductImagePreview] = useState("");
   const [productLocation, setProductLocation] = useState("");
@@ -3468,10 +3626,53 @@ function Seller() {
       return;
     }
 
+    // Validate MRP
+    if (productMrp === "" || productMrp === null || productMrp === undefined) {
+      setProductError("MRP is required");
+      return;
+    }
+    if (Number(productMrp) <= 0) {
+      setProductError("MRP must be greater than 0");
+      return;
+    }
+
     // Validate price
     if (Number(productPrice) <= 0) {
       setProductError("Price must be greater than 0");
       return;
+    }
+
+    // Validate GST
+    if (productGst === "" || productGst === null || productGst === undefined) {
+      setProductError("GST is required");
+      return;
+    }
+    if (Number(productGst) < 0 || Number(productGst) > 100) {
+      setProductError("GST must be between 0 and 100");
+      return;
+    }
+
+    // Validate delivery charge
+    if (productDeliveryCharge === "" || productDeliveryCharge === null || productDeliveryCharge === undefined) {
+      setProductError("Delivery charge is required");
+      return;
+    }
+    if (Number(productDeliveryCharge) < 0) {
+      setProductError("Delivery charge must be 0 or greater");
+      return;
+    }
+
+    // Validate expiry
+    if (!productExpiry.trim()) {
+      setProductError("Expiry is required (use NA if no expiry)");
+      return;
+    }
+    if (productExpiry.trim().toUpperCase() !== "NA") {
+      const expiryPattern = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
+      if (!expiryPattern.test(productExpiry.trim())) {
+        setProductError("Expiry must be in DD-MM-YYYY format or NA");
+        return;
+      }
     }
 
     // Validate address character count
@@ -3496,27 +3697,28 @@ function Seller() {
         imageUrl = uploadResult.url;
       }
 
+      const productPayload = {
+        productName,
+        details: productDetails,
+        mrp: Number(productMrp),
+        price: Number(productPrice),
+        gst: productGst !== "" ? Number(productGst) : 0,
+        deliveryCharge: productDeliveryCharge !== "" ? Number(productDeliveryCharge) : 0,
+        expiry: productExpiry.trim().toUpperCase() === "NA" ? "NA" : productExpiry.trim(),
+        imageUrl,
+        location: productLocation,
+        pincode: productPincode
+      };
+
       if (editingProduct) {
-        await updateProduct(editingProduct._id, {
-          productName,
-          details: productDetails,
-          price: Number(productPrice),
-          imageUrl,
-          location: productLocation,
-          pincode: productPincode
-        });
+        await updateProduct(editingProduct._id, productPayload);
         setProductSuccess("Product updated successfully!");
       } else {
         await createProduct({
           sellerId: sellerData.id,
           firstName: sellerData.firstName,
           lastName: sellerData.lastName,
-          productName,
-          details: productDetails,
-          price: Number(productPrice),
-          imageUrl,
-          location: productLocation,
-          pincode: productPincode
+          ...productPayload
         });
         setProductSuccess(`Product "${productName}" added successfully!`);
       }
@@ -3525,7 +3727,11 @@ function Seller() {
       setTimeout(() => {
         setProductName("");
         setProductDetails("");
+        setProductMrp("");
         setProductPrice("");
+        setProductGst("");
+        setProductDeliveryCharge("");
+        setProductExpiry("NA");
         setProductImage(null);
         setProductImagePreview("");
         setProductLocation("");
@@ -3552,7 +3758,11 @@ function Seller() {
     setEditingProduct(product);
     setProductName(product.productName);
     setProductDetails(product.details || "");
+    setProductMrp(product.mrp !== undefined ? String(product.mrp) : "");
     setProductPrice(product.price || "");
+    setProductGst(product.gst !== undefined ? String(product.gst) : "");
+    setProductDeliveryCharge(product.deliveryCharge !== undefined ? String(product.deliveryCharge) : "");
+    setProductExpiry(product.expiry || "NA");
     setProductImagePreview(product.imageUrl);
     setProductImageUrl(product.imageUrl);
     setProductLocation(product.location);
@@ -4010,9 +4220,35 @@ function Seller() {
                             <strong>🏷️ Code:</strong> {product.code}
                           </div>
                         )}
+                        {product.mrp && Number(product.initialMrp ?? product.mrp) > 0 && (
+                          <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                            <strong>MRP:</strong> <span>₹{product.initialMrp ?? product.mrp}</span>
+                          </div>
+                        )}
                         <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
                           <strong>💰 Price:</strong> ₹{product.initialPrice || product.price}
                         </div>
+                        {(product.gst !== undefined || product.deliveryCharge !== undefined) && (
+                          <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 6, padding: "8px 12px", marginBottom: 8, fontSize: 12 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                              <span className="muted">GST ({product.initialGst ?? product.gst ?? 0}%)</span>
+                              <span>₹{(Number(product.initialPrice || product.price || 0) * Number(product.initialGst ?? product.gst ?? 0) / 100).toFixed(2)}</span>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                              <span className="muted">Delivery</span>
+                              <span>₹{Number(product.initialDeliveryCharge ?? product.deliveryCharge ?? 0).toFixed(2)}</span>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, borderTop: "1px solid #bbf7d0", paddingTop: 4, marginTop: 4, color: "#15803d" }}>
+                              <span>Total</span>
+                              <span>₹{(Number(product.initialPrice || product.price || 0) + Number(product.initialPrice || product.price || 0) * Number(product.initialGst ?? product.gst ?? 0) / 100 + Number(product.initialDeliveryCharge ?? product.deliveryCharge ?? 0)).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        )}
+                        {product.expiry && (
+                          <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
+                            <strong>📅 Expiry:</strong> {product.initialExpiry ?? product.expiry}
+                          </div>
+                        )}
                         <div className="muted" style={{ marginBottom: 4, fontSize: 13 }}>
                           <strong>📍 Address:</strong> {product.location}
                         </div>
@@ -4200,6 +4436,11 @@ function Seller() {
             setEditingProduct(null);
             setProductName("");
             setProductDetails("");
+            setProductMrp("");
+            setProductPrice("");
+            setProductGst("");
+            setProductDeliveryCharge("");
+            setProductExpiry("NA");
             setProductImage(null);
             setProductImagePreview("");
             setProductLocation("");
@@ -4219,7 +4460,11 @@ function Seller() {
                     setEditingProduct(null);
                     setProductName("");
                     setProductDetails("");
+                    setProductMrp("");
                     setProductPrice("");
+                    setProductGst("");
+                    setProductDeliveryCharge("");
+                    setProductExpiry("NA");
                     setProductImage(null);
                     setProductImagePreview("");
                     setProductLocation("");
@@ -4279,17 +4524,110 @@ function Seller() {
                   />
                 </div>
 
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">MRP (₹) *</label>
+                    <input
+                      className="input form-input"
+                      type="number"
+                      placeholder="0.00"
+                      min="0.01"
+                      step="0.01"
+                      value={productMrp}
+                      onChange={(e) => setProductMrp(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Price (₹) *</label>
+                    <input
+                      className="input form-input"
+                      type="number"
+                      placeholder="e.g., 1000"
+                      min="0"
+                      step="0.01"
+                      value={productPrice}
+                      onChange={(e) => setProductPrice(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">GST (%) *</label>
+                    <input
+                      className="input form-input"
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={productGst}
+                      onChange={(e) => setProductGst(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Delivery Charge (₹) *</label>
+                    <input
+                      className="input form-input"
+                      type="number"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                      value={productDeliveryCharge}
+                      onChange={(e) => setProductDeliveryCharge(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
                 <div className="form-group">
-                  <label className="form-label">Price (₹) *</label>
+                  <label className="form-label">Expiry (DD-MM-YYYY) *</label>
                   <input
                     className="input form-input"
-                    type="number"
-                    placeholder="e.g., 1000"
-                    value={productPrice}
-                    onChange={(e) => setProductPrice(e.target.value)}
+                    type="text"
+                    placeholder="DD-MM-YYYY or NA"
+                    value={productExpiry}
+                    onChange={(e) => setProductExpiry(e.target.value)}
                     required
                   />
+                  <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
+                    Format: DD-MM-YYYY (e.g., 31-12-2025) or NA for no expiry
+                  </div>
                 </div>
+
+                {/* Auto-calculated pricing summary */}
+                {productPrice && Number(productPrice) > 0 && (
+                  <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: "12px 16px", marginBottom: 16 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: "#15803d", marginBottom: 8 }}>Pricing Summary</div>
+                    {productMrp && Number(productMrp) > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
+                        <span className="muted">MRP</span>
+                        <span>₹{Number(productMrp).toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
+                      <span className="muted">Price</span>
+                      <span>₹{Number(productPrice).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
+                      <span className="muted">GST ({productGst || 0}%)</span>
+                      <span>₹{(Number(productPrice) * Number(productGst || 0) / 100).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
+                      <span className="muted">Delivery Charge</span>
+                      <span>₹{Number(productDeliveryCharge || 0).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 14, borderTop: "1px solid #bbf7d0", paddingTop: 8, marginTop: 4 }}>
+                      <span>Total</span>
+                      <span style={{ color: "#15803d" }}>₹{(Number(productPrice) + Number(productPrice) * Number(productGst || 0) / 100 + Number(productDeliveryCharge || 0)).toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label className="form-label">Product Image (Optional - Max 2MB)</label>
@@ -4500,7 +4838,6 @@ function Seller() {
     </div>
   );
 }
-
 
 
 

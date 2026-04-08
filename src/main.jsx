@@ -9,7 +9,7 @@ root.render(
   <BrowserRouter>
     {/* <div onContextMenu={(e) => e.preventDefault()}> */}
        {/* Use it for inspect on off */}
-         <App />
+         {/* <App /> */}
       {/* </div> */}
   </BrowserRouter>
 );
